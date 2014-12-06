@@ -5,7 +5,7 @@ var config = {
   gearmand: [
   { host: "localhost" }
   ],
-  stat : "/home/mdamt/src/kominfo/pnsmail/queue-stat/stat.db",
+  stat : "/tmp/stat.db",
   statStripEmail : "sureliabox-pnsmail-"
 }
 
