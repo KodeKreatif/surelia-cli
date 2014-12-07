@@ -227,3 +227,35 @@ worker.addFunction("profile", function(job) {
     job.workComplete(JSON.stringify({result: false, error: e}));
   }
 });
+
+worker.addFunction("updateAlias", function(job) {
+  var payload = {};
+  try {
+    payload = JSON.parse(job.payload.toString());
+    if (payload.data.source) {
+      try {
+        user.updateAlias([payload.data.alias,payload.data.source], function(result){
+          if (result instanceof SureliaError) {
+            return job.workComplete(JSON.stringify({result: false, error: result}));
+          }
+          job.workComplete(JSON.stringify({result: result}));
+        });
+      } catch (e) {
+        job.workComplete(JSON.stringify({result: false, error: e}));
+      }
+    } else if (!payload.data.source) {
+      try {
+        user.updateAlias([payload.data.alias,false], function(result){
+          if (result instanceof SureliaError) {
+            return job.workComplete(JSON.stringify({result: false, error: result}));
+          }
+          job.workComplete(JSON.stringify({result: result}));
+        });
+      } catch (e) {
+        job.workComplete(JSON.stringify({result: false, error: e}));
+      }
+    }
+  } catch (err) {
+    job.workComplete(JSON.stringify({result: false, error: err}));
+  }
+});
