@@ -227,3 +227,36 @@ worker.addFunction("profile", function(job) {
     job.workComplete(JSON.stringify({result: false, error: e}));
   }
 });
+
+worker.addFunction("updateAlias", function(job) {
+  var payload = {};
+  try {
+    payload = JSON.parse(job.payload.toString());
+  } catch (err) {
+    console.log("invalid payload JSON");
+  }
+  if (payload == null) {
+      job.workComplete(JSON.stringify({result: false, error: err}));
+  }
+  if (payload != null && payload.data != null && payload.data.alias && payload.data.source) {
+    user.updateAlias([payload.data.alias,payload.data.source], function(err, result){
+      if (result instanceof SureliaError) {
+        return job.workComplete(JSON.stringify({result: false, error: result}));
+      }
+      if (err) {
+        return job.workComplete(JSON.stringify({result: false, error: result}));
+      }
+      job.workComplete(JSON.stringify({result: result}));
+    });
+  } else if (!payload.data.source) {
+    user.updateAlias([payload.data.alias,false], function(err, result){
+      if (result instanceof SureliaError) {
+        return job.workComplete(JSON.stringify({result: false, error: result}));
+      }
+      if (err) {
+        return job.workComplete(JSON.stringify({result: false, error: result}));
+      }
+      job.workComplete(JSON.stringify({result: result}));
+    });
+  }
+});
