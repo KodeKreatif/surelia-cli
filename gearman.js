@@ -227,3 +227,9 @@ worker.addFunction("profile", function(job) {
     job.workComplete(JSON.stringify({result: false, error: e}));
   }
 });
+
+worker.addFunction("updateAlias", function(job) {
+  console.log(JSON.stringify(job.payload));
+  return job.workComplete(JSON.stringify({result: job.payload})); 
+});
+
