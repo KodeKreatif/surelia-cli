@@ -1,4 +1,3 @@
-
 var SureliaError = require("./error");
 var user = require("./user");
 var config = require("./config");
@@ -256,6 +255,35 @@ worker.addFunction("updateAlias", function(job) {
       if (err) {
         return job.workComplete(JSON.stringify({result: false, error: result}));
       }
+      job.workComplete(JSON.stringify({result: result}));
+    });
+  } else {
+    return job.workComplete(JSON.stringify({result: false}));
+  }
+});
+
+worker.addFunction("saLearn", function(job) {
+  var payload = {};
+  try {
+    payload = JSON.parse(job.payload.toString());
+  } catch (err) {
+    console.log("invalid payload JSON");
+  }
+  if (payload == null) {
+      return job.workComplete(JSON.stringify({result: false, error: err}));
+  }
+  if (payload != null && payload.type && payload.username && payload.messageId) {
+   console.log(payload);
+    var path = config.maildir + '/' + payload.username.split('@')[1] + '/' + payload.username;
+    var spawn = require("child_process").spawn;
+    var saLearn = spawn("./sa-learn.sh", [payload.type, payload.messageId, path]);
+    var result = false;
+    saLearn.stdout.on('data', function (data) {
+      if (data.toString().indexOf('Learned') > -1) {
+        result = true;
+      }
+    });
+    saLearn.on('close', function () {
       job.workComplete(JSON.stringify({result: result}));
     });
   } else {
