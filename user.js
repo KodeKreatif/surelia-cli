@@ -291,12 +291,18 @@ User.prototype.resetPassword = function(args, cb) {
   };
 
   var findUser = function(username, domain, cb) {
+    console.log('findUser');
+    console.log(username);
+    console.log(domain);
     findDomain(domain, function(domainId) {
       user.findOne({username: username, domain: domainId}).exec(function(err, doc) {
         if (err) {
           return cb(SureliaError.internalError(err));
         }
-
+        if (!doc) {
+          return cb(SureliaError.invalidArgument("Unknown username"));
+        }
+        console.log(doc);
         if (doc.profile && doc.profile.email) {
           cb(doc);
         } else {

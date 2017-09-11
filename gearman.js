@@ -309,8 +309,11 @@ worker.addFunction("statTopRemoteFailures", function(job) {
 
 
 worker.addFunction("setPassword", function(job) {
-  var payload = JSON.parse(job.payload.toString());
+  console.log('setPassword');
+  // The payload should a stringified flat object
+  var str = job.payload.toString('utf8').split('}')[0] + '}';
   try {
+    var payload = JSON.parse(str);
     user.setPassword([payload.username, payload.oldPassword, payload.newPassword], function(result){
       if (result instanceof SureliaError) {
         return job.workComplete(JSON.stringify({result: false, error: result}));
@@ -319,17 +322,19 @@ worker.addFunction("setPassword", function(job) {
       job.workComplete(JSON.stringify({result: result}));
     });
   } catch (e) {
-    console.log("job failed");
+    console.log("Job failed");
     console.log(e);
+    console.log(job.payload.toString('utf8'));
     job.workComplete(JSON.stringify({result: false, error: e}));
   }
 });
 
 worker.addFunction("resetPassword", function(job) {
-  console.log('reset');
-  var payload = JSON.parse(job.payload.toString());
-  console.log(payload);
+  console.log('resetPassword');
+  // The payload should a stringified flat object
+  var str = job.payload.toString('utf8').split('}')[0] + '}';
   try {
+    var payload = JSON.parse(str);
     user.resetPassword([payload.username], function(result){
       if (result instanceof SureliaError) {
         return job.workComplete(JSON.stringify({result: false, error: result}));
@@ -338,8 +343,9 @@ worker.addFunction("resetPassword", function(job) {
       job.workComplete(JSON.stringify({result: result}));
     });
   } catch (e) {
-    console.log("job failed");
+    console.log("Job failed");
     console.log(e);
+    console.log(job.payload.toString('utf8'));
     job.workComplete(JSON.stringify({result: false, error: e}));
   }
 });
